@@ -1,20 +1,30 @@
 services:
   - type: web
     name: playto-kyc-api
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn playto_kyc.wsgi:application
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
         value: "False"
+      - key: DJANGO_SETTINGS_MODULE
+        value: playto_kyc.settings
+      - key: ALLOWED_HOSTS
+        value: "playto-kyc-api.onrender.com,localhost,127.0.0.1"
       - key: DATABASE_URL
         fromDatabase:
           name: playto-kyc-db
           property: connectionString
+      - key: DISABLE_COLLECTSTATIC
+        value: "1"  # Temporarily disable static collection until WhiteNoise is configured
 
 databases:
   - name: playto-kyc-db
     databaseName: playtokyc
     user: playtokyc
+    ipAllowList: []  # Allow only Render internal connections
+    plan: free  # or 'starter' depending on your needs
